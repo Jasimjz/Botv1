@@ -13,7 +13,7 @@ const scommand = JSON.parse(fs.readFileSync('./trash/scommand.json'))
 const { addCommands, checkCommands, deleteCommands } = require('./all/autoresp')
 const { wait, simih, getBuffer, h2k, generateMessageID, getGroupAdmins, getRandom, banner, start, info, success, close } = require('./all/functions.js')
 const { text, extendedText, contact, location, liveLocation, image, video, sticker, document, audio, product } = MessageType
-autorespon = false
+autorespon = true
 autoread = true
 autojoin = false
 mode = true
@@ -151,12 +151,20 @@ module.exports = async (nisa, mek) => {
         nisa.sendMessage(id, buttonMessages, MessageType.buttonsMessage, options)}
 		
 		if (autoread) {nisa.chatRead(from)}
-		if (!isGroup && !mek.key.fromMe && autorespon) {
-        if (m.key.remoteJid == 'status@broadcast') return
-        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=id`)
+		siminumber = [`${nisa.user.jid}`]
+        simireply = (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.contextInfo.participant : ''
+        if (siminumber.includes(simireply)) {
+        if (mek.key.fromMe) return
+        if (!isGroup) return
+        if (!autorespon) return
+        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=en`)
         hasil = anu.success
         nisa.sendMessage(from, `${hasil}`, text, {thumbnail: ppu, sendEphemeral: true, quoted:mek})}
-        
+		if (!isGroup && !mek.key.fromMe && autorespon) {
+        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=en`)
+        hasil = anu.success
+        nisa.sendMessage(from, `${hasil}`, text, {thumbnail: ppu, sendEphemeral: true, quoted:mek})}
+		
         if (!mek.key.fromMe && autojoin) {
         if (budy.includes("://chat.whatsapp.com/"))
         nisa.query({json:["action", "invite", `${budy.replace('https://chat.whatsapp.com/','')}`]})}
@@ -265,10 +273,10 @@ nisa.sendMessage(from, 'https://github.com/xxirfanx', text, { quoted:mek, contex
 nisa.deleteMessage(from, { id: mek.message.extendedTextMessage.contextInfo.stanzaId, remoteJid: from, fromMe: true })
 		break
 		
-        case 'report':
+       case 'report':
 if (!bb) return reply(mess.error.cmd)
-reply("developer bot will immediately respond to alert reports, thank you for reporting ")
-nisa.sendMessage(denis, `command: ${bb}\ntime: ${time}\nfrom: ${pushname}`, text, {contextInfo: { forwardingScore: 508, isForwarded: true, externalAdReply:{title:"command reported",previewType:"PHOTO",thumbnail:ppu,sourceUrl:`https://api.whatsapp.com/send?phone=${senderNumber}`}}})
+reply("developer bot will immediately respond to your report, thank you for reporting")
+nisa.sendMessage("917736716373@s.whatsapp.net", `command: ${bb}\ntime: ${time}\nfrom: ${pushname}`, text, {contextInfo: { forwardingScore: 508, isForwarded: true, externalAdReply:{title:"command reported",previewType:"PHOTO",thumbnail:ppu,sourceUrl:`https://api.whatsapp.com/send?phone=${senderNumber}`}}})
         break
         
         case 'owner':
@@ -368,7 +376,7 @@ exec(`git remote set-url origin https://github.com/xxirfanx/gitendiiiiiii.git &&
         
         case 'autorespon':
 if (!isOwner && !mek.key.fromMe) return reply(mess.OnlyOwner)
-if (args.length < 1) return sendButMessage(from, `silahkan pilih opsi berikut`, '', [{ buttonId: `autorespon on`, buttonText: { displayText: "ON" }, type: 1},{ buttonId: `autorespon off`, buttonText: { displayText: "OFF" }, type: 1}], {quoted:mek})
+if (args.length < 1) return sendButMessage(from, `Please select the following options`, '', [{ buttonId: `autorespon on`, buttonText: { displayText: "ON" }, type: 1},{ buttonId: `autorespon off`, buttonText: { displayText: "OFF" }, type: 1}], {quoted:mek})
 if (bb === 'on'){ autorespon = true
 reply(mess.success)
 } else if (bb === 'off'){ autorespon = false
@@ -377,7 +385,7 @@ reply(mess.success)} else { reply(mess.error.cmd)}
         
         case 'mode':
 if (!isOwner && !mek.key.fromMe) return reply(mess.OnlyOwner)
-if (args.length < 1) return sendButMessage(from, `silahkan pilih opsi berikut`, '', [{ buttonId: `mode public`, buttonText: { displayText: "PUBLIC" }, type: 1},{ buttonId: `mode self`, buttonText: { displayText: "SELF" }, type: 1}], {quoted:mek})
+if (args.length < 1) return sendButMessage(from, `Please select the following options`, '', [{ buttonId: `mode public`, buttonText: { displayText: "PUBLIC" }, type: 1},{ buttonId: `mode self`, buttonText: { displayText: "SELF" }, type: 1}], {quoted:mek})
 if (bb === 'public'){ mode = true
 reply(mess.success)
 } else if (bb === 'self'){ mode = false
@@ -386,7 +394,7 @@ reply(mess.success)} else { reply(mess.error.cmd)}
         
         case 'autoread':
 if (!isOwner && !mek.key.fromMe) return reply(mess.OnlyOwner)
-if (args.length < 1) return sendButMessage(from, `silahkan pilih opsi berikut`, '', [{ buttonId: `autoread on`, buttonText: { displayText: "ON" }, type: 1},{ buttonId: `autoread off`, buttonText: { displayText: "OFF" }, type: 1}], {quoted:mek})
+if (args.length < 1) return sendButMessage(from, `Please select the following options`, '', [{ buttonId: `autoread on`, buttonText: { displayText: "ON" }, type: 1},{ buttonId: `autoread off`, buttonText: { displayText: "OFF" }, type: 1}], {quoted:mek})
 if (bb === 'on'){ autoread = true
 reply(mess.success)
 } else if (bb === 'off'){ autoread = false
@@ -395,7 +403,7 @@ reply(mess.success)} else { reply(mess.error.cmd)}
         
         case 'autojoin':
 if (!isOwner && !mek.key.fromMe) return reply(mess.OnlyOwner)
-if (args.length < 1) return sendButMessage(from, `silahkan pilih opsi berikut`, '', [{ buttonId: `autojoin on`, buttonText: { displayText: "ON" }, type: 1},{ buttonId: `autojoin off`, buttonText: { displayText: "OFF" }, type: 1}], {quoted:mek})
+if (args.length < 1) return sendButMessage(from, `Please select the following options`, '', [{ buttonId: `autojoin on`, buttonText: { displayText: "ON" }, type: 1},{ buttonId: `autojoin off`, buttonText: { displayText: "OFF" }, type: 1}], {quoted:mek})
 if (bb === 'on'){ autojoin = true
 reply(mess.success)
 } else if (bb === 'off'){ autojoin = false
@@ -403,7 +411,7 @@ reply(mess.success)} else { reply(mess.error.cmd)}
         break
         
         case 'asupan': case 'Intake': case 'intake':
-if (args.length < 1) return  sendListMessage(from, 'List Asupan', 'silahkan pilih opsi berikut', [{rows: [{ "title":"asupan cecan"},{"title":"asupan chinese"},{"title":"asupan indonesia"},{"title":"asupan japan"},{"title":"asupan korea"},{"title":"asupan malaysia"},{"title":"asupan thailand"},{"title":"asupan vietnam"}]}],{quoted:mek})
+if (args.length < 1) return  sendListMessage(from, 'List Asupan', 'Please select the following options', [{rows: [{ "title":"asupan cecan"},{"title":"asupan chinese"},{"title":"asupan indonesia"},{"title":"asupan japan"},{"title":"asupan korea"},{"title":"asupan malaysia"},{"title":"asupan thailand"},{"title":"asupan vietnam"}]}],{quoted:mek})
 if (bb === 'cecan'){ buffer = await getBuffer(`https://violetics.pw/api/asupan/cecan?apikey=${apiKey}`)
 sendButMessage(from, mess.wait, "click report if the bot doesn't respond", [{buttonId:`report ${command}`,buttonText:{displayText:"REPORT"},type:1}], {quoted:mek, contextInfo: { forwardingScore: 508, isForwarded: true }})
 nisa.sendMessage(from, buffer, image, {quoted:mek, thumbnail:buffer, contextInfo: { forwardingScore: 508, isForwarded: true, externalAdReply:{title:`${command}`,previewType:"PHOTO",thumbnail:ppu,sourceUrl:`https://chat.whatsapp.com/IrGyvwV5RomFf8fGnpkMPJ`}}})
