@@ -4,6 +4,7 @@ const setting = JSON.parse(fs.readFileSync("./settings.json"))
 const ffmpeg = require('fluent-ffmpeg')
 const simple = require('./all/simple.js')
 const { fetchJson, fetchText } = require('./all/fetcher')
+const translate = require('@vitalets/google-translate-api')
 const moment = require("moment-timezone")
 const { exec } = require('child_process')
 const { color, bgcolor, clcolor } = require('./all/color.js')
@@ -151,19 +152,22 @@ module.exports = async (nisa, mek) => {
         nisa.sendMessage(id, buttonMessages, MessageType.buttonsMessage, options)}
 		
 		if (autoread) {nisa.chatRead(from)}
+		if (m.key.remoteJid == 'status@broadcast') return
 		siminumber = [`${nisa.user.jid}`]
         simireply = (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.contextInfo.participant : ''
         if (siminumber.includes(simireply)) {
         if (mek.key.fromMe) return
         if (!isGroup) return
         if (!autorespon) return
-        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=en`)
+        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=id`)
         hasil = anu.success
-        nisa.sendMessage(from, `${hasil}`, text, {thumbnail: ppu, sendEphemeral: true, quoted:mek})}
-		if (!isGroup && !mek.key.fromMe && autorespon) {
-        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=en`)
+        translate(hasil, {from:'en', to:'auto'}).then((res) =>{
+        nisa.sendMessage(from, `${res.text}`, text, {thumbnail: ppu, sendEphemeral: true, quoted:mek})})}
+        if (!isGroup && !mek.key.fromMe && autorespon) {
+        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=id`)
         hasil = anu.success
-        nisa.sendMessage(from, `${hasil}`, text, {thumbnail: ppu, sendEphemeral: true, quoted:mek})}
+        translate(hasil, {from:'en', to:'auto'}).then((res) =>{
+        nisa.sendMessage(from, `${res.text}`, text, {thumbnail: ppu, sendEphemeral: true, quoted:mek})})}
 		
         if (!mek.key.fromMe && autojoin) {
         if (budy.includes("://chat.whatsapp.com/"))
@@ -309,8 +313,7 @@ reply(mess.error.api)}).on('end', () => {
 sendButMessage(from, mess.wait, "click report if the bot doesn't respond", [{buttonId:`report ${command}`,buttonText:{displayText:"REPORT"},type:1}], {quoted:mek, contextInfo: { forwardingScore: 508, isForwarded: true }})
 nisa.sendMessage(from, fs.readFileSync(`./trash/${ran}`), sticker, {quoted:mek, contextInfo: { forwardingScore: 508, isForwarded: true, externalAdReply:{title:`${command}`,previewType:"PHOTO",thumbnail:ppu,sourceUrl:`https://chat.whatsapp.com/IrGyvwV5RomFf8fGnpkMPJ`}}})
 fs.unlinkSync(file)
-fs.unlinkSync(`./trash/${ran}`)}).addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`]).toFormat('webp').save(`./trash/${ran}`)} else {
-reply(`Kirim gambar dengan caption ${prefix}sticker atau tag gambar yang sudah dikirim`)}
+fs.unlinkSync(`./trash/${ran}`)}).addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`]).toFormat('webp').save(`./trash/${ran}`)} else {reply(`Kirim gambar dengan caption ${prefix}sticker atau tag gambar yang sudah dikirim`)}
         break
         
         case 'ghstalk': case 'github':
