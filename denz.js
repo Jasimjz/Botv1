@@ -159,14 +159,14 @@ module.exports = async (nisa, mek) => {
         if (mek.key.fromMe) return
         if (!isGroup) return
         if (!autorespon) return
-        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=id`)
+        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=en`)
         hasil = anu.success
-        translate(hasil, {from:'en', to:'auto'}).then((res) =>{
+        translate(hasil, {from:'id', to:'auto'}).then((res) =>{
         nisa.sendMessage(from, `${res.text}`, text, {thumbnail: ppu, sendEphemeral: true, quoted:mek})})}
         if (!isGroup && !mek.key.fromMe && autorespon) {
-        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=id`)
+        anu = await fetchJson(`https://simsimi.info/api/?text=${cmd}&lc=en`)
         hasil = anu.success
-        translate(hasil, {from:'en', to:'auto'}).then((res) =>{
+        translate(hasil, {from:'id', to:'auto'}).then((res) =>{
         nisa.sendMessage(from, `${res.text}`, text, {thumbnail: ppu, sendEphemeral: true, quoted:mek})})}
 		
         if (!mek.key.fromMe && autojoin) {
@@ -199,6 +199,12 @@ menunya = `☰ \`\`\`${botName}\`\`\`
 ☰ \`\`\`List Menu\`\`\`
 ❏ ${prefix}sticker [ _reply media_ ]
 └ _make pictures/video become sticker_
+
+❏ ${prefix}Attp [ _text_ ]
+└ _make text into a sticker_
+
+❏ ${prefix}emojimix [ _emoji1+emoji2_ ]
+└ _mix emoji become a sticker_
 
 ❏ ${prefix}tahta [ _text_ ]
 └ _make text into a picture of the throne_
@@ -315,7 +321,31 @@ nisa.sendMessage(from, fs.readFileSync(`./trash/${ran}`), sticker, {quoted:mek, 
 fs.unlinkSync(file)
 fs.unlinkSync(`./trash/${ran}`)}).addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`]).toFormat('webp').save(`./trash/${ran}`)} else {reply(`Kirim gambar dengan caption ${prefix}sticker atau tag gambar yang sudah dikirim`)}
         break
-        
+
+      case 'attp':
+              if (args.length == 0)
+              if (!bb) return reply(mess.error.cmd)
+              buffer = await getBuffer(`https://api.xteam.xyz/attp?file&text=${bb}`, {method: 'get'})
+              sendButMessage(from, mess.wait, "click report if the bot doesn't respond", [{buttonId:`report ${command}`,buttonText:{displayText:"REPORT"},type:1}], {quoted:mek, contextInfo: { forwardingScore: 508, isForwarded: true }})
+              nisa.sendMessage(from, buffer, sticker, {quoted:mek, contextInfo: { forwardingScore: 508, isForwarded: true, externalAdReply:{title:`${command}`,previewType:"PHOTO",thumbnail:ppu,sourceUrl:`https://chat.whatsapp.com/IrGyvwV5RomFf8fGnpkMPJ`}}})
+              break
+
+      case 'emojimix': case 'mixemoji':
+       if (!bb) return reply(mess.error.cmd)
+       sendButMessage(from, mess.wait, "click report if the bot doesn't respond", [{buttonId:`report ${command}`,buttonText:{displayText:"REPORT"},type:1}], {quoted:mek, contextInfo: { forwardingScore: 508, isForwarded: true }})
+        txt = bb.split("+")
+        teks1 = txt[0]
+        teks2 = txt[1]
+        ran1 = getRandom('.bin')
+         ran2 = getRandom('.webp')
+         anu = `https://violetics.pw/api/media/emojimix?apikey=${apiKey}&emoji1=${teks1}&emoji2=${teks2}`
+         exec(`wget "${anu}" -O ${ran1} && ffmpeg -i ${ran1} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${ran2}`, (err) => { if (err) return reply("Failed, please try again using a different emoji")
+           fs.unlinkSync(ran1)
+            buffer = fs.readFileSync(ran2)
+            nisa.sendMessage(from, buffer, sticker, {quoted:mek, contextInfo: { forwardingScore: 508, isForwarded: true, externalAdReply:{title:`${command}`,previewType:"PHOTO",thumbnail:ppu,sourceUrl:`https://chat.whatsapp.com/IrGyvwV5RomFf8fGnpkMPJ`}}}).then(() => {fs.unlinkSync(ran2)})})
+             break
+
+
         case 'ghstalk': case 'github':
 if (!bb) return reply(mess.error.cmd)
 anu = await fetchJson(`https://violetics.pw/api/stalk/github?apikey=${apiKey}&username=${bb}`, {method: 'get'})
